@@ -23,6 +23,8 @@ const totalCountEl = document.getElementById('total-count');
 const percentageEl = document.getElementById('visited-percentage');
 const tooltip = document.getElementById('tooltip');
 const mapContainer = document.getElementById('map-container');
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const sidebar = document.querySelector('.sidebar');
 
 // Map Data
 let geoData = {
@@ -74,7 +76,29 @@ function setupEventListeners() {
     // Window Resize
     window.addEventListener('resize', debounce(() => {
         if (svg) renderMap();
+
+        // Auto-expand sidebar if resizing back to desktop
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('collapsed');
+        }
     }, 250));
+
+    // Mobile Menu Toggle
+    if (mobileMenuBtn) {
+        // Start collapsed on mobile
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+        }
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+
+            // Re-render map after transition to fill new space
+            setTimeout(() => {
+                if (svg) renderMap();
+            }, 300);
+        });
+    }
 }
 
 // Load GeoJSON/TopoJSON Data
@@ -212,9 +236,11 @@ function showTooltip(event, d) {
 }
 
 function moveTooltip(event) {
-    // The event coordinates need to factor in the page scroll if any
+    // Because the tooltip is appended inside .app-container which isn't relative,
+    // and we want it to follow the mouse, we just use absolute viewport coordinates.
     tooltip.style.left = (event.clientX + 15) + 'px';
     tooltip.style.top = (event.clientY - 15) + 'px';
+    tooltip.style.position = 'fixed';
 }
 
 function hideTooltip() {
