@@ -234,9 +234,11 @@ function showTooltip(event, d) {
 }
 
 function moveTooltip(event) {
-    // The event coordinates need to factor in the page scroll if any
+    // Because the tooltip is appended inside .app-container which isn't relative,
+    // and we want it to follow the mouse, we just use absolute viewport coordinates.
     tooltip.style.left = (event.clientX + 15) + 'px';
     tooltip.style.top = (event.clientY - 15) + 'px';
+    tooltip.style.position = 'fixed';
 }
 
 function hideTooltip() {
