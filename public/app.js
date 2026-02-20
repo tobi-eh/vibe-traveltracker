@@ -234,8 +234,9 @@ function showTooltip(event, d) {
 }
 
 function moveTooltip(event) {
-    tooltip.style.left = (event.pageX + 15) + 'px';
-    tooltip.style.top = (event.pageY - 15) + 'px';
+    // The event coordinates need to factor in the page scroll if any
+    tooltip.style.left = (event.clientX + 15) + 'px';
+    tooltip.style.top = (event.clientY - 15) + 'px';
 }
 
 function hideTooltip() {
