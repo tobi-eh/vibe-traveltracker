@@ -23,6 +23,8 @@ const totalCountEl = document.getElementById('total-count');
 const percentageEl = document.getElementById('visited-percentage');
 const tooltip = document.getElementById('tooltip');
 const mapContainer = document.getElementById('map-container');
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const sidebar = document.querySelector('.sidebar');
 
 // Map Data
 let geoData = {
@@ -74,7 +76,29 @@ function setupEventListeners() {
     // Window Resize
     window.addEventListener('resize', debounce(() => {
         if (svg) renderMap();
+
+        // Auto-expand sidebar if resizing back to desktop
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('collapsed');
+        }
     }, 250));
+
+    // Mobile Menu Toggle
+    if (mobileMenuBtn) {
+        // Start collapsed on mobile
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('collapsed');
+        }
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+
+            // Re-render map after transition to fill new space
+            setTimeout(() => {
+                if (svg) renderMap();
+            }, 300);
+        });
+    }
 }
 
 // Load GeoJSON/TopoJSON Data
