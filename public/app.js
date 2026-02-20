@@ -89,7 +89,9 @@ async function loadData() {
         const usTopo = await usResponse.json();
         const worldTopo = await worldResponse.json();
 
-        geoData.us = topojson.feature(usTopo, usTopo.objects.states).features;
+        // Filter out territories (FIPS > 56) since geoAlbersUsa doesn't support them
+        const allUsFeatures = topojson.feature(usTopo, usTopo.objects.states).features;
+        geoData.us = allUsFeatures.filter(d => parseInt(d.id, 10) <= 56);
         geoData.world = topojson.feature(worldTopo, worldTopo.objects.countries).features;
 
     } catch (error) {
@@ -210,8 +212,9 @@ function showTooltip(event, d) {
 }
 
 function moveTooltip(event) {
-    tooltip.style.left = (event.pageX + 15) + 'px';
-    tooltip.style.top = (event.pageY - 15) + 'px';
+    // The event coordinates need to factor in the page scroll if any
+    tooltip.style.left = (event.clientX + 15) + 'px';
+    tooltip.style.top = (event.clientY - 15) + 'px';
 }
 
 function hideTooltip() {
@@ -251,7 +254,7 @@ function togglePlace(name) {
 function updateScopeUI() {
     searchInput.value = '';
     if (currentScope === SCOPE_US) {
-        selectionHeading.textContent = "🇺🇸 Select States & Territories Visited";
+        selectionHeading.textContent = "🇺🇸 Select States Visited";
     } else if (currentScope === SCOPE_WORLD) {
         selectionHeading.textContent = "🌍 Select Countries Visited";
     } else {
@@ -283,7 +286,7 @@ function updateSidebar() {
     const pct = total === 0 ? 0 : ((visited / total) * 100).toFixed(1);
 
     // Update labels depending on scope
-    const unitLabel = currentScope === SCOPE_US ? 'states and territories' : 'countries';
+    const unitLabel = currentScope === SCOPE_US ? 'states' : 'countries';
 
     document.getElementById('stats-text').innerHTML = `You have visited <strong id="visited-count">${visited}</strong> out of <span id="total-count">${total}</span> ${unitLabel} (<span id="visited-percentage">${pct}%</span>).`;
 
